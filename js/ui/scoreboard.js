@@ -192,10 +192,10 @@ export const ScoreboardUI = {
       </div>
     `;
 
-    this.bindEvents(t, maxPoints);
+    this.bindEvents(t, maxPoints, round);
   },
 
-  bindEvents(t, maxPoints) {
+  bindEvents(t, maxPoints, round) {
     // Auto-fill opponent score
     document.querySelectorAll('.score-input').forEach(input => {
       const matchId = input.closest('[data-match-id]')?.dataset.matchId;
