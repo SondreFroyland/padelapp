@@ -164,6 +164,7 @@ export const Actions = {
     match.score1 = parseInt(score1, 10);
     match.score2 = parseInt(score2, 10);
     match.status = 'completed';
+    delete t._undoState; // can't undo once a match is recorded
 
     const module = await getFormatModule(t.format);
     t.standings = module.calculateStandings(t);
@@ -200,6 +201,13 @@ export const Actions = {
     const module = await getFormatModule(t.format);
     if (module.isTournamentComplete(t)) return;
 
+    // Snapshot state before mutations so we can undo
+    t._undoState = {
+      prevIndex: t.currentRoundIndex,
+      prevRoundsLength: t.rounds.length,
+      prevFormatState: JSON.parse(JSON.stringify(t.formatState))
+    };
+
     // For Americano and Round Robin, use pre-generated rounds first, then generate extra rounds
     if (t.format === 'americano' || t.format === 'roundrobin') {
       const nextIndex = t.currentRoundIndex + 1;
@@ -220,6 +228,21 @@ export const Actions = {
         t.currentRoundIndex = t.rounds.length - 1;
       }
     }
+
+    Storage.saveActiveTournament(t);
+    ScoreboardUI.render();
+    Router.updateNav();
+  },
+
+  undoLastRound() {
+    const t = AppState.tournament;
+    if (!t?._undoState) return;
+
+    const { prevIndex, prevRoundsLength, prevFormatState } = t._undoState;
+    t.rounds.splice(prevRoundsLength);    // remove any generated round
+    t.formatState = prevFormatState;      // restore pair history / court state
+    t.currentRoundIndex = prevIndex;
+    delete t._undoState;
 
     Storage.saveActiveTournament(t);
     ScoreboardUI.render();

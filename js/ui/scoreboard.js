@@ -1,4 +1,4 @@
-import { AppState, Actions, showConfirm, getFormatModule } from '../app.js';
+import { AppState, Actions, showConfirm } from '../app.js';
 
 const FORMAT_NAMES = {
   mexicano: 'Mexicano',
@@ -155,6 +155,8 @@ export const ScoreboardUI = {
         <button id="finish-btn" class="btn btn-ghost btn-full" style="margin-top:8px">Avslutt turnering</button>`;
     }
 
+    const canUndo = !!t._undoState;
+
     const root = document.getElementById('app-root');
     root.innerHTML = `
       <div class="page">
@@ -162,6 +164,10 @@ export const ScoreboardUI = {
           <span class="round-label">${roundProgressLabel(t)}</span>
           <span style="font-size:0.8125rem;color:var(--text-muted)">${FORMAT_NAMES[t.format] || ''}</span>
         </div>
+        ${canUndo ? `
+          <button id="undo-round-btn" class="btn btn-ghost btn-full" style="margin-bottom:12px;color:var(--danger);border-color:var(--danger)">
+            Angre runde ${round.roundNumber}
+          </button>` : ''}
 
         ${renderByes(round, players)}
 
@@ -238,6 +244,12 @@ export const ScoreboardUI = {
 
         await Actions.saveMatchResult(matchId, s1, s2);
       });
+    });
+
+    // Undo round
+    document.getElementById('undo-round-btn')?.addEventListener('click', async () => {
+      const ok = await showConfirm(`Angre oppstart av runde ${round.roundNumber}?`, 'Angre');
+      if (ok) Actions.undoLastRound();
     });
 
     // Next round

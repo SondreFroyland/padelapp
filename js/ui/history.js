@@ -34,6 +34,35 @@ function topThree(tournament) {
   }).join('');
 }
 
+function renderHistoryRounds(t) {
+  if (!t.rounds?.length || !t.players?.length) return '';
+  const played = t.rounds.filter(r => r.matches.some(m => m.status === 'completed'));
+  if (!played.length) return '';
+
+  return `
+    <div style="margin-top:14px">
+      <div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:10px">Kamper</div>
+      ${played.map(round => {
+        const done = round.matches.filter(m => m.status === 'completed');
+        return `
+          <div style="margin-bottom:14px">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;margin-bottom:6px">Runde ${round.roundNumber}</div>
+            ${done.map(m => {
+              const t1 = m.team1.map(id => t.players.find(p => p.id === id)?.name ?? id).join(' / ');
+              const t2 = m.team2.map(id => t.players.find(p => p.id === id)?.name ?? id).join(' / ');
+              const t1won = m.score1 > m.score2;
+              return `
+                <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:0.8125rem">
+                  <span style="flex:1;${t1won ? 'font-weight:600' : 'color:var(--text-muted)'}">${escHtml(t1)}</span>
+                  <span style="font-weight:700;flex-shrink:0">${m.score1}–${m.score2}</span>
+                  <span style="flex:1;text-align:right;${!t1won ? 'font-weight:600' : 'color:var(--text-muted)'}">${escHtml(t2)}</span>
+                </div>`;
+            }).join('')}
+          </div>`;
+      }).join('')}
+    </div>`;
+}
+
 function tournamentDetailHTML(t) {
   const rounds = t.rounds?.length ?? 0;
   const completedMatches = t.rounds?.reduce((acc, r) => acc + r.matches.filter(m => m.status === 'completed').length, 0) ?? 0;
@@ -47,6 +76,7 @@ function tournamentDetailHTML(t) {
       <div style="margin-top:10px;font-size:0.8125rem;color:var(--text-muted)">
         Spillere: ${t.players.map(p => escHtml(p.name)).join(', ')}
       </div>` : ''}
+    ${renderHistoryRounds(t)}
   `;
 }
 
