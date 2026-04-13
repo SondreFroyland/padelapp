@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <rect width="192" height="192" rx="40" fill="#0f0f0f"/>
+  <!-- Racket head (oval) -->
+  <ellipse cx="96" cy="82" rx="42" ry="52" fill="none" stroke="#4ade80" stroke-width="10"/>
+  <!-- String grid vertical -->
+  <line x1="96" y1="30" x2="96" y2="134" stroke="#4ade80" stroke-width="3" stroke-opacity="0.4"/>
+  <line x1="76" y1="35" x2="76" y2="129" stroke="#4ade80" stroke-width="2" stroke-opacity="0.25"/>
+  <line x1="116" y1="35" x2="116" y2="129" stroke="#4ade80" stroke-width="2" stroke-opacity="0.25"/>
+  <!-- String grid horizontal -->
+  <line x1="55" y1="70" x2="137" y2="70" stroke="#4ade80" stroke-width="2" stroke-opacity="0.25"/>
+  <line x1="54" y1="82" x2="138" y2="82" stroke="#4ade80" stroke-width="3" stroke-opacity="0.4"/>
+  <line x1="55" y1="94" x2="137" y2="94" stroke="#4ade80" stroke-width="2" stroke-opacity="0.25"/>
+  <!-- Handle -->
+  <rect x="88" y="132" width="16" height="44" rx="8" fill="#4ade80"/>
+</svg>
