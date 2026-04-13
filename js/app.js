@@ -276,10 +276,16 @@ export const Actions = {
 
     await Storage.saveTournamentHistory(t);
     Storage.clearActiveTournament();
-    AppState.lastCompletedId = t.id;
+    const completedId = t.id;
     AppState.tournament = null;
+    AppState.lastCompletedId = completedId;
 
-    Router.navigate('#history');
+    if (location.hash === '#history') {
+      Router.updateNav();
+      HistoryUI.render();
+    } else {
+      Router.navigate('#history');
+    }
     showToast('Turnering fullfort!');
   },
 
