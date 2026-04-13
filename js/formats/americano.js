@@ -10,7 +10,7 @@ function rotateLeft(arr) {
   return [...arr.slice(1), arr[0]];
 }
 
-function generateSchedule(players) {
+function generateSchedule(players, maxCourts = 0) {
   // Round-robin circle method: fix players[0], rotate the rest
   const n = players.length;
   if (n < 4) return [];
@@ -70,8 +70,11 @@ function generateSchedule(players) {
       });
     }
 
-    if (matches.length > 0) {
-      rounds.push({ roundNumber: rounds.length + 1, status: r === 0 ? 'active' : 'pending', matches, byes: [] });
+    const finalMatches = maxCourts ? matches.slice(0, maxCourts) : matches;
+    if (finalMatches.length > 0) {
+      const activePlayers = new Set(finalMatches.flatMap(m => [...m.team1, ...m.team2]));
+      const byes = circle.filter(p => p && p.id !== '__bye__' && !activePlayers.has(p.id)).map(p => p.id);
+      rounds.push({ roundNumber: rounds.length + 1, status: r === 0 ? 'active' : 'pending', matches: finalMatches, byes });
     }
 
     rotating = rotateLeft(rotating);
@@ -119,7 +122,7 @@ export function calculateStandings(tournament) {
 }
 
 export function initTournament(players, config) {
-  const allRounds = generateSchedule(players);
+  const allRounds = generateSchedule(players, config.numCourts || 0);
   const limited = config.numRounds ? allRounds.slice(0, config.numRounds) : allRounds;
 
   const standings = {};
@@ -151,6 +154,7 @@ export function isTournamentComplete(tournament) {
 
 function buildExtraRound(tournament) {
   const { standings, players } = tournament;
+  const maxCourts = tournament.config.numCourts || 0;
   const sorted = [...players].sort((a, b) => {
     const sa = standings[a.id], sb = standings[b.id];
     if (sb.pointsFor !== sa.pointsFor) return sb.pointsFor - sa.pointsFor;
@@ -159,7 +163,7 @@ function buildExtraRound(tournament) {
   const pool = [...sorted];
   const matches = [];
   let court = 1;
-  while (pool.length >= 4) {
+  while (pool.length >= 4 && (!maxCourts || court <= maxCourts)) {
     matches.push({
       id: crypto.randomUUID(), court: court++,
       team1: [pool[0].id, pool[1].id],

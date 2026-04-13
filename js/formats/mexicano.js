@@ -16,13 +16,13 @@ function pairKey(id1, id2) {
   return [id1, id2].sort().join(':');
 }
 
-function buildRound(orderedPlayers, roundNumber, pairHistory) {
+function buildRound(orderedPlayers, roundNumber, pairHistory, maxCourts = 0) {
   const pool = [...orderedPlayers];
   const matches = [];
   const byes = [];
   let court = 1;
 
-  while (pool.length >= 4) {
+  while (pool.length >= 4 && (!maxCourts || court <= maxCourts)) {
     const [p0, p1, p2, p3] = pool;
 
     // Try to avoid repeat partners by swapping p1 and p2 if both pairs have history
@@ -105,7 +105,7 @@ export function calculateStandings(tournament) {
 export function initTournament(players, config) {
   const shuffled = shuffle(players);
   const pairHistory = new Set();
-  const round1 = buildRound(shuffled, 1, pairHistory);
+  const round1 = buildRound(shuffled, 1, pairHistory, config.numCourts || 0);
 
   const standings = {};
   for (const p of players) {
@@ -135,7 +135,7 @@ export function generateNextRound(tournament) {
     return sb.wins - sa.wins;
   });
 
-  const round = buildRound(sorted, roundNumber, pairHistory);
+  const round = buildRound(sorted, roundNumber, pairHistory, tournament.config.numCourts || 0);
   tournament.formatState.mexicano.pairHistory = [...pairHistory];
   return round;
 }

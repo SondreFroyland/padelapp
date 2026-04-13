@@ -28,6 +28,7 @@ let setupState = {
   format: 'mexicano',
   config: {
     numRounds: 0,
+    numCourts: 0,
     maxPoints: 32,
     pairMode: false,
     targetCourtWins: null
@@ -44,6 +45,10 @@ function getConfigHTML(format) {
           <input type="number" id="cfg-rounds" class="input" value="${c.numRounds}" min="0" max="50">
         </div>
         <div class="form-group">
+          <label class="form-label" for="cfg-courts">Antall baner (0 = automatisk)</label>
+          <input type="number" id="cfg-courts" class="input" value="${c.numCourts || 0}" min="0" max="20">
+        </div>
+        <div class="form-group">
           <label class="form-label">Makspoeng per kamp</label>
           <div class="preset-row">
             <button class="preset-btn${c.maxPoints===16?' selected':''}" data-preset="16">16</button>
@@ -58,6 +63,10 @@ function getConfigHTML(format) {
         <div class="form-group">
           <label class="form-label" for="cfg-rounds">Maks runder (0 = ubegrenset)</label>
           <input type="number" id="cfg-rounds" class="input" value="${c.numRounds || 0}" min="0" max="50">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="cfg-courts">Antall baner (0 = automatisk)</label>
+          <input type="number" id="cfg-courts" class="input" value="${c.numCourts || 0}" min="0" max="20">
         </div>
         <div class="form-group">
           <label class="form-label">Makspoeng per kamp</label>
@@ -90,6 +99,10 @@ function getConfigHTML(format) {
 
     case 'vinnerbane':
       return `
+        <div class="form-group">
+          <label class="form-label" for="cfg-courts">Antall baner (0 = automatisk)</label>
+          <input type="number" id="cfg-courts" class="input" value="${c.numCourts || 0}" min="0" max="20">
+        </div>
         <div class="form-group">
           <label class="form-label">Makspoeng per kamp</label>
           <div class="preset-row">
@@ -309,6 +322,14 @@ function bindConfigEvents() {
     });
   }
 
+  // Courts input
+  const courtsInput = document.getElementById('cfg-courts');
+  if (courtsInput) {
+    courtsInput.addEventListener('input', () => {
+      setupState.config.numCourts = parseInt(courtsInput.value, 10) || 0;
+    });
+  }
+
   // Toggle pair/individual for round robin
   document.querySelectorAll('.toggle-opt[data-mode]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -343,4 +364,7 @@ function readConfig() {
     const v = parseInt(targetInput.value, 10);
     setupState.config.targetCourtWins = v > 0 ? v : null;
   }
+
+  const courtsInput2 = document.getElementById('cfg-courts');
+  if (courtsInput2) setupState.config.numCourts = parseInt(courtsInput2.value, 10) || 0;
 }

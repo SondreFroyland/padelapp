@@ -73,7 +73,8 @@ export function calculateStandings(tournament) {
 
 export function initTournament(players, config) {
   const shuffled = shuffle([...players]);
-  const numCourts = Math.floor(shuffled.length / 4);
+  const maxAuto = Math.floor(shuffled.length / 4);
+  const numCourts = config.numCourts ? Math.min(config.numCourts, maxAuto) : maxAuto;
   const courts = {};
   const byeQueue = [];
 
@@ -86,7 +87,6 @@ export function initTournament(players, config) {
     ];
   }
 
-  // Remaining players go to bye queue
   for (let i = numCourts * 4; i < shuffled.length; i++) {
     byeQueue.push(shuffled[i].id);
   }

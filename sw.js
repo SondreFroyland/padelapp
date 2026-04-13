@@ -1,4 +1,4 @@
-const CACHE_NAME = 'padelapp-v1';
+const CACHE_NAME = 'padelapp-v2';
 
 const PRECACHE_URLS = [
   './',

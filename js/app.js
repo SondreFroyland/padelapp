@@ -234,6 +234,24 @@ export const Actions = {
     Router.updateNav();
   },
 
+  async resetMatchResult(matchId) {
+    const t = AppState.tournament;
+    if (!t) return;
+    const round = t.rounds[t.currentRoundIndex];
+    const match = round?.matches.find(m => m.id === matchId);
+    if (!match || match.status !== 'completed') return;
+
+    match.score1 = null;
+    match.score2 = null;
+    match.status = 'pending';
+    round.status = 'active';
+
+    const module = await getFormatModule(t.format);
+    t.standings = module.calculateStandings(t);
+    Storage.saveActiveTournament(t);
+    ScoreboardUI.render();
+  },
+
   undoLastRound() {
     const t = AppState.tournament;
     if (!t?._undoState) return;
@@ -374,9 +392,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // Settings modal
   initSettingsModal();
 
-  // Register service worker
+  // Register service worker + detect updates
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      reg.addEventListener('updatefound', () => {
+        const installing = reg.installing;
+        if (!installing) return;
+        installing.addEventListener('statechange', () => {
+          if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+            showToast('Ny versjon tilgjengelig – laster om...', 'success');
+            setTimeout(() => location.reload(), 2500);
+          }
+        });
+      });
+    }).catch(() => {});
   }
 
   // Start routing

@@ -181,7 +181,7 @@ export const LeaderboardUI = {
       advanceBtn = `<button id="finish-btn" class="btn btn-ghost btn-full" style="margin-top:8px">Avslutt turnering</button>`;
     }
 
-    const numRoundsPlayed = t.rounds.filter(r => r.status === 'completed').length;
+    const currentRoundNumber = t.rounds[t.currentRoundIndex]?.roundNumber ?? (t.currentRoundIndex + 1);
     const numRoundsCfg = t.config?.numRounds;
     const totalRounds = numRoundsCfg > 0
       ? numRoundsCfg
@@ -194,7 +194,7 @@ export const LeaderboardUI = {
           <div>
             <div style="font-weight:700;font-size:1rem">${escHtml(t.name)}</div>
             <div style="font-size:0.8125rem;color:var(--text-muted)">
-              ${totalRounds ? `Runde ${numRoundsPlayed} av ${totalRounds}` : `Runde ${numRoundsPlayed}`}
+              ${totalRounds ? `Runde ${currentRoundNumber} av ${totalRounds}` : `Runde ${currentRoundNumber}`}
             </div>
           </div>
           <span class="format-badge">${escHtml(t.format)}</span>

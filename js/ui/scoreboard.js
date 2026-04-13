@@ -28,7 +28,10 @@ function matchCardHTML(match, players, maxPoints, showMovement, completedOnly = 
     const t1won = score1 > score2;
     return `
       <div class="match-card completed" data-match-id="${id}">
-        <div class="match-header">Bane ${court}</div>
+        <div class="match-header">
+          Bane ${court}
+          <button class="btn-edit-match" data-match-id="${id}" style="float:right;font-size:0.75rem;color:var(--text-muted);text-decoration:underline;padding:0">Rediger</button>
+        </div>
         <div class="match-team-row">
           <div class="match-team-names">
             <span>${teamLabel(team1, players)}</span>
@@ -196,7 +199,7 @@ export const ScoreboardUI = {
   },
 
   bindEvents(t, maxPoints, round) {
-    // Auto-fill opponent score
+    // Auto-fill opponent score + Enter to save
     document.querySelectorAll('.score-input').forEach(input => {
       const matchId = input.closest('[data-match-id]')?.dataset.matchId;
       if (!matchId) return;
@@ -208,6 +211,13 @@ export const ScoreboardUI = {
         const other = document.getElementById(otherId);
         if (other && !isNaN(v) && v >= 0 && v <= maxPoints) {
           other.value = maxPoints - v;
+        }
+      });
+
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          input.closest('[data-match-id]')?.querySelector('.save-match-btn')?.click();
         }
       });
     });
@@ -224,6 +234,13 @@ export const ScoreboardUI = {
 
         if (isNaN(s1) || isNaN(s2) || s1 < 0 || s2 < 0) {
           s1Input?.focus();
+          return;
+        }
+
+        if (s1 === s2) {
+          s1Input?.closest('.match-card')?.querySelector('.validation-error')?.remove();
+          s1Input?.closest('.match-card')?.querySelector('.match-divider')
+            ?.insertAdjacentHTML('afterend', `<p class="validation-error" style="margin:4px 0">Uavgjort er ikke gyldig i padel</p>`);
           return;
         }
 
@@ -244,6 +261,11 @@ export const ScoreboardUI = {
 
         await Actions.saveMatchResult(matchId, s1, s2);
       });
+    });
+
+    // Edit completed match
+    document.querySelectorAll('.btn-edit-match').forEach(btn => {
+      btn.addEventListener('click', () => Actions.resetMatchResult(btn.dataset.matchId));
     });
 
     // Undo round
